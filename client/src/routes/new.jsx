@@ -1,11 +1,13 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useCallback, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PlatformContext } from "../context/PlatformContext";
 import { Loader } from "../components";
+// import { addTask } from "../utils/platform";
+// import { accountBalance } from "../utils/near";
 
 const FormField = ({ placeholder, name, type, value, handleChange }) => {
-  if (name === "projectType") {
+  if (name === "taskType") {
     return (
       <select
         className="block appearance-none w-full bg-transparent border text-white py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:border-gray-500"
@@ -13,8 +15,12 @@ const FormField = ({ placeholder, name, type, value, handleChange }) => {
         type={type}
         onChange={(e) => handleChange(e, name)}
       >
-        <option style={{ backgroundColor: "rgb(30 41 59)" }} value="0">First Come First Serve</option>
-        <option style={{ backgroundColor: "rgb(30 41 59)" }} value="1">Author Selected</option>
+        <option style={{ backgroundColor: "rgb(30 41 59)" }} value="FCFS">
+          First Come First Serve
+        </option>
+        <option style={{ backgroundColor: "rgb(30 41 59)" }} value="SelectedByAuthor">
+          Selected By Author
+        </option>
       </select>
     );
   }
@@ -42,15 +48,40 @@ const FormField = ({ placeholder, name, type, value, handleChange }) => {
   );
 };
 
-export default function NewProject() {
-  const { handleChange, addProject, formData, isLoading, fee, balance } =
-    useContext(PlatformContext);
+export default function NewTask() {
+  const account = window.walletConnection.account();
+  // const [balance, setBalance] = useState("0");
+  // const [fee, setFee] = useState(0);
+  // const getBalance = useCallback(async () => {
+  //   if (account.accountId) {
+  //     setBalance(await accountBalance());
+  //   }
+  // }, [account.accountId]);
 
+  // const getFee = async () => {
+  //   if (account.accountId) {
+  //     const fetchedFee = await getPlatformFeePercentage();
+  //     setFee(fetchedFee);
+  //     console.log("fee", fee);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   getBalance();
+  // }, [getBalance]);
+
+  // useEffect(() => {
+  //   getFee();
+  // });
+
+  const { handleChange, formData, isLoading, fee, balance, addTask } =
+    useContext(PlatformContext);
+  console.log("fee", fee);
   const handleSubmit = (e) => {
     const { title, description, reward } = formData;
     e.preventDefault();
     if (!title || !description || !reward) return;
-    addProject();
+    addTask();
   };
 
   const totalAmount = (
@@ -92,7 +123,7 @@ export default function NewProject() {
               </span>
               <div className="relative">
                 <FormField
-                  name="projectType"
+                  name="taskType"
                   type="select"
                   handleChange={handleChange}
                 />
@@ -105,9 +136,9 @@ export default function NewProject() {
                 </div>
               </div>
             </div>
-            <p className="text-white self-end">Balance: {balance} MATIC</p>
+            <p className="text-white self-end">Balance: {balance} NEAR</p>
             <FormField
-              placeholder="Reward (MATIC)"
+              placeholder="Reward (NEAR)"
               name="reward"
               type="number"
               handleChange={handleChange}
@@ -115,7 +146,7 @@ export default function NewProject() {
             <div className="h-[1px] w-full bg-gray-400 my-2" />
             <p className="text-white text-center">
               Total amount to pay (including {fee}% portal fee): {totalAmount}{" "}
-              MATIC
+              NEAR
             </p>
             {isLoading ? (
               <Loader />

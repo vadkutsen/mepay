@@ -1,26 +1,44 @@
-import { v4 as uuid4 } from "uuid";
+// import { v4 as uuid4 } from "uuid";
 import { parseNearAmount } from "near-api-js/lib/utils/format";
 
-const GAS = 100000000000000;
-
-export function createProject(project) {
-  project.id = uuid4();
-  project.price = parseNearAmount(project.price + "");
-  return window.contract.setProject({ project });
+export async function getPlatformFeePercentage() {
+  await window.contract.get_platform_fee_percentage();
 }
 
-export function getProjects() {
-  return window.contract.getProjects();
+export async function getRating(account) {
+  await window.contract.get_rating({ account_id: account });
 }
 
-export async function addCandidate({ id }) {
-  await window.contract.applyForProject({ projectId: id });
+export async function addTask(task) {
+  // eslint-disable-next-line no-param-reassign
+  task.reward = parseNearAmount(task.reward.toString());
+  await window.contract.addTask({ task });
 }
 
-export async function completeProject({ id, resultLink }) {
-  await window.contract.completeProject({ projectId: id, result: resultLink });
+export function getTasks() {
+  return window.contract.get_tasks();
 }
 
-export async function approve({ id, amount }) {
-  await window.contract.payForProject({ projectId: id}, GAS, amount);
+export function getTask(id) {
+  return window.contract.get_task({ task_id: id });
+}
+
+export async function applyForTask(id) {
+  await window.contract.apply_for_task({ task_id: id });
+}
+
+export async function completeTask(id) {
+  await window.contract.complete_task({ task_: id });
+}
+
+export async function assignTask({ id, account }) {
+  await window.contract.assign_task({ task_id: id, candidate_account: account });
+}
+
+export async function unassignTask(id) {
+  await window.contract.assign_task({ task_id: id });
+}
+
+export async function submitResult({ id, result }) {
+  await window.contract.submit_result({ task_id: id, result });
 }

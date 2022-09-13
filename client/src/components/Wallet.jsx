@@ -1,6 +1,5 @@
-import React from "react";
-import { Dropdown, Stack, Spinner } from "react-bootstrap";
-import { Fragment } from "react";
+import React, { Fragment } from "react";
+import { Spinner } from "react-bootstrap";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
@@ -13,7 +12,9 @@ const Wallet = ({ address, amount, symbol, destroy }) => {
     return (
       <Menu as="div" className="relative inline-block text-left">
         <div>
-          <Menu.Button className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
+          <Menu.Button
+            className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+          >
             {amount ? (
               <>
                 {amount} <span className="ms-1"> {symbol}</span>
@@ -44,6 +45,7 @@ const Wallet = ({ address, amount, symbol, destroy }) => {
                   <a
                     href={`https://explorer.testnet.near.org/accounts/${address}`}
                     target="_blank"
+                    rel="noreferrer"
                     className={classNames(
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700",
                       "block px-4 py-2 text-sm"

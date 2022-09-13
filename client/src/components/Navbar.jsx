@@ -1,30 +1,20 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { HiMenuAlt4 } from "react-icons/hi";
 import { AiOutlineClose, AiFillPlayCircle } from "react-icons/ai";
-// import { FaStar } from "react-icons/fa";
-// import { PlatformContext } from "../context/PlatformContext";
+import { FaStar } from "react-icons/fa";
+import { PlatformContext } from "../context/PlatformContext";
 import Wallet from "./Wallet";
-import { login, logout as destroy, accountBalance } from "../utils/near";
+import { login, logout as destroy } from "../utils/near";
 
 const NavBarItem = ({ title, classprops }) => (
   <li className={`mx-4 cursor-pointer ${classprops}`}>{title}</li>
 );
 
 const Navbar = () => {
-  // const { currentAccount, networkId, fetchedRating } =
-  //   useContext(PlatformContext);
+  const { balance, fetchedRating } =
+    useContext(PlatformContext);
   const account = window.walletConnection.account();
-  const [balance, setBalance] = useState("0");
-  const getBalance = useCallback(async () => {
-    if (account.accountId) {
-      setBalance(await accountBalance());
-    }
-  }, [account.accountId]);
-
-  useEffect(() => {
-    getBalance();
-  }, [getBalance]);
 
   const [toggleMenu, setToggleMenu] = React.useState(false);
 
@@ -41,7 +31,7 @@ const Navbar = () => {
 
   const renderAccountInfo = () => (
     <div className="flex flex-row">
-      {/* <span className="mr-1">
+      <span className="mr-1">
         My rating:
       </span>
       <span className="flex flex-row justify-center items-center mr-4">
@@ -51,12 +41,6 @@ const Navbar = () => {
             <FaStar key={index} color="#ffc107" size={20} />
           ))}
       </span>
-      <img
-        alt="Network logo"
-        className="w-4 h-4 self-center"
-        src={networkId === networks.testnet.chainId ? polygonLogo : ethLogo}
-      />
-      <p>{shortenAddress(currentAccount)}</p> */}
       <Wallet
         address={account.accountId}
         amount={balance}

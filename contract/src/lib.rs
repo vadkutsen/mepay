@@ -1,6 +1,6 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{UnorderedMap, Vector};
-// use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::collections::{UnorderedMap};
+use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, near_bindgen, setup_alloc, AccountId, Promise};
 
 setup_alloc!();
@@ -19,9 +19,8 @@ pub struct Platform {
 }
 
 /// Task structure is defined here
-#[near_bindgen]
-#[derive(BorshDeserialize, BorshSerialize)]
-// #[serde(crate = "near_sdk::serde")]
+#[derive(BorshDeserialize, BorshSerialize, Deserialize, Serialize)]
+#[serde(crate = "near_sdk::serde")]
 pub struct Task {
   id: u64,
   title: String,
@@ -29,18 +28,12 @@ pub struct Task {
   task_type: String,
   author: AccountId,
   assignee: Option<AccountId>,
-  candidates: Vector<AccountId>,
+  candidates: Vec<AccountId>,
   created_at: u64,
   completed_at: Option<u64>,
   reward: u128,
   result: Option<String>,
 }
-
-/// Candidate structure is defined here
-// pub struct Candidate {
-//   account: AccountId,
-//   rating: u8
-// }
 
 /// Default implementation of the contract
 impl Default for Platform {
@@ -63,8 +56,9 @@ fn calculate_rating(prev_rating: u8, new_rating: u8) -> u8 {
   (prev_rating + new_rating) / 2
 }
 
-#[near_bindgen]
+
 /// The contract implementation
+#[near_bindgen]
 impl Platform {
   /// Add task
   #[payable]
@@ -99,7 +93,7 @@ impl Platform {
       author: env::predecessor_account_id(),
       created_at: env::block_timestamp(),
       assignee: None,
-      candidates: Vector::new(b"c".to_vec()),
+      candidates: Vec::new(),
       reward: reward,
       completed_at: None,
       result: None,
@@ -125,7 +119,7 @@ impl Platform {
     assert!(task.assignee.is_none(), "The task is already assigned");
     let mut is_account_applied = false;
     for i in 0..task.candidates.len() {
-      if task.candidates.get(i).unwrap() == candidate_account {
+      if task.candidates.get(i).unwrap() == &candidate_account {
         is_account_applied = true;
       }
     }
@@ -179,7 +173,7 @@ impl Platform {
       self.tasks.insert(&task_id, &updated_task);
     } else if task.task_type == "SelectedByAuthor" {
       let mut candidates = task.candidates;
-      candidates.push(&account);
+      candidates.push(account);
       let updated_task = Task {
         candidates: candidates,
         ..task
@@ -315,6 +309,16 @@ impl Platform {
       &task_id
     );
     self.tasks.get(&task_id).unwrap()
+  }
+
+  /// Returns platform fee percentage
+  pub fn get_platform_fee_percentage(&self) -> u8 {
+    self.platform_fee_percentage
+  }
+
+  /// Returns rating by account id
+  pub fn get_rating(&self, account_id: AccountId) -> u8 {
+    self.ratings.get(&account_id).unwrap_or(0)
   }
 
 }
@@ -542,6 +546,15 @@ mod tests {
   }
 
   #[test]
+  fn get_platform_fee_percentage() {
+    let context = get_context(vec![], false);
+    testing_env!(context);
+    let contract = Platform::default();
+    let get = contract.get_platform_fee_percentage();
+    assert_eq!(1, get);
+  }
+
+  #[test]
   #[should_panic(expected="You are not permitted to perform this action.")]
   fn cannot_change_platform_fee_percentage_if_not_owner() {
     let context = get_context(vec![], false);
@@ -581,5 +594,31 @@ mod tests {
       100_000_000_000_000_000_000_000,
     );
     contract.withdraw_fees("test_near".to_string());
+  }
+
+  #[test]
+  fn get_rating_if_unrated() {
+    let context = get_context(vec![], false);
+    testing_env!(context);
+    let contract = Platform::default();
+    let rating = contract.get_rating("test.near".to_string());
+    assert_eq!(0, rating);
+  }
+  #[test]
+  fn get_rating_if_rated() {
+    let context = get_context(vec![], false);
+    testing_env!(context);
+    let mut contract = Platform::default();
+    contract.add_task(
+      "title".to_string(),
+      "description".to_string(),
+      "FCFS".to_string(),
+      100_000_000_000_000_000_000_000,
+    );
+    contract.apply_for_task(0);
+    contract.submit_result(0, "result".to_string());
+    contract.complete_task(0, 5);
+    let rating = contract.get_rating("sam_near".to_string());
+    assert_eq!(5, rating);
   }
 }
