@@ -1,8 +1,8 @@
 # MePay - Blockchain Freelance Platform on NEAR
 MePay is a prototype of a freelancing platform which stores it's data on the NEAR blockchain.
 
-Application deployed at [https://medo-5jefp3.spheron.app/](https://medo-5jefp3.spheron.app/), currently running on NEAR testnet.
-Smart Contract deployed at address 0x3aD0caD9E7Fb1A7A46F6F0665bbC97BdfDdaD740.
+Application deployed at [https://vadkutsen.github.io/mepay](https://vadkutsen.github.io/mepay), currently running on NEAR testnet.
+Smart Contract deployed at address mepay.testnet.
 
 ## Introduction
 The idea of MeDo is to ease the difficulties faced by freelancers nowadays such as unsurity about payments and high fees charged by middlemen. Blockchain can help by guaranteeing payments with help of smart contracts, providing security and an integrated payment system which can save time delays and fees in cases of international payments and its decentralized nature mean there is no middleman.
