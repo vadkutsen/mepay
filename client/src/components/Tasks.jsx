@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { HiSearch } from "react-icons/hi";
 import { useSearchParams } from "react-router-dom";
 import { PlatformContext } from "../context/PlatformContext";
-import ProjectCard from "./ProjectCard";
+import TaskCard from "./TaskCard";
 
 const Tasks = () => {
   const { account, tasks } = useContext(PlatformContext);
@@ -53,7 +53,7 @@ const Tasks = () => {
               const title = p.title.toLowerCase();
               return title.includes(filter.toLowerCase());
             })
-            .map((task, i) => <ProjectCard key={i} {...task} />)}
+            .map((task, i) => <TaskCard key={i} {...task} />)}
       </div>
     </>
   );

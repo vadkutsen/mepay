@@ -1,15 +1,14 @@
 import { useContext, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { PlatformContext } from "../context/PlatformContext";
-// import { shortenAddress } from "../utils/shortenAddress";
 
 const AuthorActions = () => {
   const {
-    project,
-    deleteProject,
-    assignProject,
-    unassignProject,
-    completeProject,
+    task,
+    deleteTask,
+    assignTask,
+    unassignTask,
+    completeTask,
   } = useContext(PlatformContext);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -19,18 +18,18 @@ const AuthorActions = () => {
   const handleAssign = (e) => {
     if (selected === "Select a candidate to assign") return;
     e.preventDefault();
-    assignProject(project.id, selected);
+    assignTask(task.id, selected);
   };
 
   const handleComplete = (e) => {
     if (rating === 0) return;
     e.preventDefault();
-    completeProject(project.id, rating);
+    completeTask(task.id, rating);
   };
 
   // If the task is not assigned
-  if (project.assignee === "Unassigned") {
-    if (project.candidates.length > 0) {
+  if (task.assignee === "Unassigned") {
+    if (task.candidates.length > 0) {
       return (
         <div>
           <select
@@ -45,7 +44,7 @@ const AuthorActions = () => {
             onChange={(e) => setSelected(e.target.value)}
           >
             <option value="">{defaultSelectValue}</option>
-            {project.candidates.map((candidate, i) => (
+            {task.candidates.map((candidate, i) => (
               <option key={i} value={candidate.candidate}>
                 {candidate.candidate} - rating: {candidate.rating === 0 ? "unrated" : `${candidate.rating}/5`}
               </option>
@@ -62,7 +61,7 @@ const AuthorActions = () => {
             <button
               type="button"
               className="flex flex-row justify-center items-center my-5 bg-[#831843] p-3 w-1/6 text-white rounded-full cursor-pointer hover:bg-[#2546bd]"
-              onClick={() => deleteProject(project.id)}
+              onClick={() => deleteTask(task.id)}
             >
               Delete Task
             </button>
@@ -83,7 +82,7 @@ const AuthorActions = () => {
         <button
           type="button"
           className="flex flex-row justify-center items-center my-5 bg-[#831843] p-3 w-1/6 text-white rounded-full cursor-pointer hover:bg-[#2546bd]"
-          onClick={() => deleteProject(project.id)}
+          onClick={() => deleteTask(task.id)}
         >
           Delete Task
         </button>
@@ -101,7 +100,7 @@ const AuthorActions = () => {
   // If the task is assigned
   return (
     <div>
-      {project.result ? (
+      {task.result ? (
         <>
           <p className="mt-3 text-white">Please rate the assignee first</p>
           <p className="text-white">and then mark the task as complete.</p>
@@ -141,7 +140,7 @@ const AuthorActions = () => {
         <button
           type="button"
           className="flex flex-row justify-center items-center my-5 bg-[#2952e3] p-3 w-1/6 text-white rounded-full cursor-pointer hover:bg-[#2546bd]"
-          onClick={() => unassignProject(project.id)}
+          onClick={() => unassignTask(task.id)}
         >
           Unassign
         </button>

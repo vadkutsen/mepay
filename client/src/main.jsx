@@ -4,9 +4,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import App from "./App";
 import { PlatformProvider } from "./context/PlatformContext";
 import MyTasks from "./routes/myTasks";
-import Project from "./routes/project";
+import Task from "./routes/task";
 import "./index.css";
-import NewProject from "./routes/new";
+import NewTask from "./routes/new";
 import Home from "./routes/home";
 import { initializeContract } from "./utils/near";
 
@@ -18,8 +18,8 @@ window.nearInitPromise = initializeContract()
           <Routes>
             <Route path="/" element={<App />}>
               <Route index element={<Home />} />
-              <Route path="new" element={<NewProject />} />
-              <Route path=":id" element={<Project />} />
+              <Route path="new" element={<NewTask />} />
+              <Route path=":id" element={<Task />} />
               <Route
                 path="*"
                 element={(

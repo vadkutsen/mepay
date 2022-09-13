@@ -3,7 +3,7 @@ import { PlatformContext } from "../context/PlatformContext";
 import IpfsForm from "./IpfsForm";
 
 const AssigneeActions = () => {
-  const { project, unassignProject, submitResult, ipfsUrl } =
+  const { task, unassignTask, submitResult, ipfsUrl } =
     useContext(PlatformContext);
   const [result, setResult] = useState("");
 
@@ -17,12 +17,12 @@ const AssigneeActions = () => {
   const handleSubmit = (e) => {
     if (result === "") return;
     e.preventDefault();
-    submitResult(project.id, result);
+    submitResult(task.id, result);
   };
-  if (project.result) {
+  if (task.result) {
     return (
       <p className="mt-5 text-2xl text-white text-basetext-white">
-        Result submitted. Waiting for completion from the author.
+        Result submitted. Waiting for the task completion from the author.
       </p>
     );
   }
@@ -31,7 +31,7 @@ const AssigneeActions = () => {
       <button
         type="button"
         className="flex flex-row justify-center items-center my-5 bg-[#2952e3] p-3 w-1/6 text-white rounded-full cursor-pointer hover:bg-[#2546bd]"
-        onClick={() => unassignProject(project.id)}
+        onClick={() => unassignTask(task.id)}
       >
         Unassign
       </button>
