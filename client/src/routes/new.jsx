@@ -1,10 +1,8 @@
-import React, { useContext, useState, useCallback, useEffect } from "react";
+import React, { useContext } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { PlatformContext } from "../context/PlatformContext";
 import { Loader } from "../components";
-// import { addTask } from "../utils/platform";
-// import { accountBalance } from "../utils/near";
 
 const FormField = ({ placeholder, name, type, value, handleChange }) => {
   if (name === "taskType") {
@@ -74,14 +72,13 @@ export default function NewTask() {
   //   getFee();
   // });
 
-  const { handleChange, formData, isLoading, fee, balance, addTask } =
+  const { handleChange, formData, isLoading, fee, balance, addNewTask } =
     useContext(PlatformContext);
-  console.log("fee", fee);
   const handleSubmit = (e) => {
     const { title, description, reward } = formData;
     e.preventDefault();
     if (!title || !description || !reward) return;
-    addTask();
+    addNewTask();
   };
 
   const totalAmount = (

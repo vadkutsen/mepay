@@ -4,19 +4,19 @@ import { useSearchParams } from "react-router-dom";
 import { PlatformContext } from "../context/PlatformContext";
 import ProjectCard from "./ProjectCard";
 
-const Projects = () => {
-  const { currentAccount, projects } = useContext(PlatformContext);
+const Tasks = () => {
+  const { account, tasks } = useContext(PlatformContext);
   const [searchParams, setSearchParams] = useSearchParams();
   return (
     <>
-      {currentAccount && projects ? (
+      {account && tasks ? (
         <div>
           <p className="text-white text-3xl text-center my-2">
-            {projects.length === 0
+            {tasks.length === 0
               ? "No tasks yet"
-              : `Latest Tasks (${projects.length})`}
+              : `Latest Tasks (${tasks.length})`}
           </p>
-          {projects.length > 0 && (
+          {tasks.length > 0 && (
             <div className="flex flex-row justify-center items-center">
               <input
                 className="my-2 w-4/12 rounded-sm p-2 outline-none bg-transparent text-white text-sm white-glassmorphism"
@@ -40,12 +40,12 @@ const Projects = () => {
         </div>
       ) : (
         <p className="text-white text-3xl text-center my-2">
-          Connect your account to see the latest projects
+          Connect your account to see the latest tasks
         </p>
       )}
       <div className="flex flex-wrap justify-center items-center mt-10">
-        {projects &&
-          [...projects]
+        {tasks &&
+          [...tasks]
             .reverse()
             .filter((p) => {
               const filter = searchParams.get("filter");
@@ -53,10 +53,10 @@ const Projects = () => {
               const title = p.title.toLowerCase();
               return title.includes(filter.toLowerCase());
             })
-            .map((project, i) => <ProjectCard key={i} {...project} />)}
+            .map((task, i) => <ProjectCard key={i} {...task} />)}
       </div>
     </>
   );
 };
 
-export default Projects;
+export default Tasks;

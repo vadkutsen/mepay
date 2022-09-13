@@ -31,7 +31,7 @@ const Navbar = () => {
 
   const renderAccountInfo = () => (
     <div className="flex flex-row">
-      <span className="mr-1">
+      <span className="mr-1 self-center">
         My rating:
       </span>
       <span className="flex flex-row justify-center items-center mr-4">
