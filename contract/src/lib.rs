@@ -2,6 +2,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{UnorderedMap};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, near_bindgen, setup_alloc, AccountId, Promise};
+use near_sdk::json_types::U128;
 
 setup_alloc!();
 
@@ -67,17 +68,17 @@ impl Platform {
     title: String,
     description: String,
     task_type: String,
-    reward: u128,
+    reward: U128,
   ) -> bool {
     assert!(title.len() > 0, "Title is reqired.");
     assert!(description.len() > 0, "Description is required.");
     assert!(
-      reward > STORAGE_COST,
+      reward.0 > STORAGE_COST,
       "Attached deposit should be greater than {} yoctoNEAR",
       STORAGE_COST
     );
-    let platform_fee = (reward / 100) * u128::from(self.platform_fee_percentage);
-    let total_amount = reward + platform_fee;
+    let platform_fee = (reward.0 / 100) * u128::from(self.platform_fee_percentage);
+    let total_amount = reward.0 + platform_fee;
     assert!(
       total_amount == env::attached_deposit(),
       "Invalid amount attached. {} yoctoNEAR needed",
@@ -94,7 +95,7 @@ impl Platform {
       created_at: env::block_timestamp(),
       assignee: None,
       candidates: Vec::new(),
-      reward: reward,
+      reward: reward.0,
       completed_at: None,
       result: None,
     };
@@ -341,7 +342,7 @@ mod tests {
       account_balance: 0,
       account_locked_balance: 0,
       storage_usage: 0,
-      attached_deposit: 101_000_000_000_000_000_000_000,
+      attached_deposit: 10_100_000_000_000_000_000_000,
       prepaid_gas: 10u64.pow(18),
       random_seed: vec![0, 1, 2],
       is_view,
@@ -359,7 +360,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "type".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     let tasks = contract.get_tasks();
     assert!(add);
@@ -370,7 +371,7 @@ mod tests {
     assert_eq!("type".to_string(), task.task_type);
     assert_eq!("sam_near".to_string(), task.author);
     let fees = contract.total_fees;
-    assert_eq!(fees, 10_000_000_000_000_000_000_00);
+    assert_eq!(fees, 1_00_000_000_000_000_000_000);
   }
 
   #[test]
@@ -383,7 +384,7 @@ mod tests {
       "".to_string(),
       "description".to_string(),
       "type".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
   }
 
@@ -397,7 +398,7 @@ mod tests {
       "title".to_string(),
       "".to_string(),
       "type".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
   }
 
@@ -410,13 +411,13 @@ mod tests {
       "title1".to_string(),
       "description1".to_string(),
       "SelectedByAuthor".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     contract.add_task(
       "title2".to_string(),
       "description2".to_string(),
       "FCFS".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     let tasks = contract.get_tasks();
     assert_eq!(2, tasks.len());
@@ -431,7 +432,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "SelectedByAuthor".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     contract.apply_for_task(0);
     let assign = contract.assign_task(0, "sam_near".to_string());
@@ -449,7 +450,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "SelectedByAuthor".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     contract.apply_for_task(0);
     contract.assign_task(0, "sam_near".to_string());
@@ -468,7 +469,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "FCFS".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     let apply = contract.apply_for_task(0);
     assert!(apply);
@@ -485,7 +486,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "SelectedByAuthor".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     let task = contract.get_task(0);
     assert_eq!(task.candidates.len(), 0);
@@ -505,7 +506,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "FCFS".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     contract.apply_for_task(0);
     let submit = contract.submit_result(0, "result".to_string());
@@ -523,7 +524,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "FCFS".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     contract.apply_for_task(0);
     contract.submit_result(0, "result".to_string());
@@ -567,14 +568,14 @@ mod tests {
   fn withdraw_fees() {
     let mut context = get_context(vec![], false);
     context.predecessor_account_id = "alice_near".to_string();
-    context.attached_deposit = 101_000_000_000_000_000_000_000_000;
+    context.attached_deposit = 1_010_000_000_000_000_000_000_000;
     testing_env!(context);
     let mut contract = Platform::default();
     contract.add_task(
       "title".to_string(),
       "description".to_string(),
       "FCFS".to_string(),
-      100_000_000_000_000_000_000_000_000,
+      U128::from(1000000000000000000000000),
     );
     let withdraw = contract.withdraw_fees("test_near".to_string());
     assert!(withdraw);
@@ -591,7 +592,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "FCFS".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     contract.withdraw_fees("test_near".to_string());
   }
@@ -613,7 +614,7 @@ mod tests {
       "title".to_string(),
       "description".to_string(),
       "FCFS".to_string(),
-      100_000_000_000_000_000_000_000,
+      U128::from(10000000000000000000000),
     );
     contract.apply_for_task(0);
     contract.submit_result(0, "result".to_string());
