@@ -1,7 +1,7 @@
 # MePay - Blockchain Freelance Platform on NEAR
 MePay is a prototype of a freelancing platform which stores it's data on the NEAR blockchain.
 
-Application deployed at [https://vadkutsen.github.io/mepay](https://vadkutsen.github.io/mepay), currently running on NEAR testnet.
+Application deployed at [https://mepay.netlify.app/](https://mepay.netlify.app/), currently running on NEAR testnet.
 Smart Contract deployed at address mepay.testnet.
 
 ## Introduction
