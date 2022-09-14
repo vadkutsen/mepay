@@ -19,6 +19,7 @@
     "@tailwindcss/forms": "^0.3.4",
     "@vitejs/plugin-react": "^1.0.0",
     "autoprefixer": "^10.4.0",
+    "bignumber.js": "^9.1.0",
     "bn.js": "^5.2.1",
     "buffer": "^6.0.3",
     "dotenv": "^16.0.1",

@@ -9,7 +9,7 @@ const Tasks = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   return (
     <>
-      {account && tasks ? (
+      {account.accountId && tasks ? (
         <div>
           <p className="text-white text-3xl text-center my-2">
             {tasks.length === 0
@@ -47,10 +47,10 @@ const Tasks = () => {
         {tasks &&
           [...tasks]
             .reverse()
-            .filter((p) => {
+            .filter((t) => {
               const filter = searchParams.get("filter");
               if (!filter) return true;
-              const title = p.title.toLowerCase();
+              const title = t.title.toLowerCase();
               return title.includes(filter.toLowerCase());
             })
             .map((task, i) => <TaskCard key={i} {...task} />)}

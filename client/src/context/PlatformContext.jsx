@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
-import { parseNearAmount } from "near-api-js/lib/utils/format";
+import { parseNearAmount, formatNearAmount } from "near-api-js/lib/utils/format";
 import { Web3Storage } from "web3.storage";
 import { accountBalance } from "../utils/near";
 
@@ -30,11 +30,12 @@ function MessageDisplay({ message, hash }) {
 }
 
 export const PlatformProvider = ({ children }) => {
+  const GAS = 300000000000000;
   const account = window.walletConnection.account();
   const [formData, setformData] = useState({
     title: "",
     description: "",
-    projectType: "FCFS",
+    taskType: "FCFS",
     reward: 0,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -45,17 +46,16 @@ export const PlatformProvider = ({ children }) => {
   const [fetchedRating, setFetchedRating] = useState(0);
   const [ipfsUrl, setIpfsUrl] = useState("");
 
-  const notify = (message, hash) =>
-    toast.success(<MessageDisplay message={message} hash={hash} />, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
+  const notify = (message, hash) => toast.success(<MessageDisplay message={message} hash={hash} />, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "dark",
+  });
 
   const onUploadHandler = async (event) => {
     const client = new Web3Storage({
@@ -97,54 +97,55 @@ export const PlatformProvider = ({ children }) => {
       }
     } catch (error) {
       console.log(error);
-      alert(error.message);
+      // alert(error.message);
     }
   };
 
   const getAccountRating = async (accountToFetch) => {
     try {
       if (account.accountId) {
-        setFetchedRating(await window.contract.get_rating({ account_id: accountToFetch }));
+        setFetchedRating(
+          await window.contract.get_rating({ account_id: accountToFetch })
+        );
       } else {
         console.log("Please login");
       }
     } catch (error) {
       console.log(error);
-      alert(error.message);
+      // alert(error.message);
     }
   };
 
   const getAllTasks = async () => {
     try {
       if (account.accountId) {
-        const availableProjects = await window.contract.get_tasks();
-        const structuredProjects = availableProjects
-          .filter((item) => item.title && item.title !== "")
+        const existingTasks = await window.contract.get_tasks();
+        const structuredTasks = existingTasks
           .map((item) => ({
-            id: item.id.toNumber(),
-            title: item.title,
-            description: item.description,
-            projectType: TaskType[item.taskType],
+            id: item[1].id,
+            title: item[1].title,
+            description: item[1].description,
+            projectType: TaskType[item[1].task_type],
             createdAt: new Date(
-              item.createdAt.toNumber() * 1000
+              item[1].created_at / 1000000
             ).toLocaleString(),
-            author: item.author,
-            candidates: item.candidates,
-            assignee: !item.assignee ? "Unassigned" : item.assignee,
+            author: item[1].author,
+            candidates: item[1].candidates,
+            assignee: !item[1].assignee ? "Unassigned" : item[1].assignee,
             completedAt:
-              item.completedAt > 0
-                ? new Date(item.completedAt.toNumber() * 1000).toLocaleString()
+              item[1].completed_at > 0
+                ? new Date(item[1].completed_at / 1000000).toLocaleString()
                 : "Not completed yet",
-            reward: parseInt(item.reward, 10) / 10 ** 18,
-            result: item.result,
+            reward: (item[1].reward / 1000000000000000000000000).toFixed(2),
+            result: item[1].result,
           }));
-        setTasks(structuredProjects);
+        setTasks(structuredTasks);
       } else {
-        console.log("Ethereum is not present");
+        console.log("Please log in");
       }
     } catch (error) {
       console.log(error);
-      alert(error.message);
+      // alert(error.message);
     }
   };
 
@@ -159,28 +160,25 @@ export const PlatformProvider = ({ children }) => {
     setIsLoading(true);
     try {
       if (account.accountId) {
-        const fetchedTask = await window.contract.get_task({ task_id: id });
+        const fetchedTask = await window.contract.get_task({ task_id: Number(id) });
         const structuredTask = {
-          id: fetchedTask.id.toNumber(),
+          id: fetchedTask.id,
           title: fetchedTask.title,
           description: fetchedTask.description,
-          projectType: TaskType[fetchedTask.projectType],
+          taskType: TaskType[fetchedTask.task_type],
           createdAt: new Date(
-            fetchedTask.createdAt.toNumber() * 1000
+            fetchedTask.created_at / 1000000
           ).toLocaleString(),
           author: fetchedTask.author,
           candidates: fetchedTask.candidates,
-          assignee:
-            !fetchedTask.assignee
-              ? "Unassigned"
-              : fetchedTask.assignee,
+          assignee: !fetchedTask.assignee ? "Unassigned" : fetchedTask.assignee,
           completedAt:
-            fetchedTask.completedAt > 0
+            fetchedTask.completed_at > 0
               ? new Date(
-                fetchedTask.completedAt.toNumber() * 1000
+                fetchedTask.completed_at / 1000000
               ).toLocaleString()
               : "Not completed yet",
-          reward: parseInt(fetchedTask.reward, 10) / 10 ** 18,
+          reward: (fetchedTask.reward / 1000000000000000000000000).toFixed(2),
           result: fetchedTask.result,
         };
         setTask(structuredTask);
@@ -189,7 +187,7 @@ export const PlatformProvider = ({ children }) => {
       }
     } catch (error) {
       console.log(error);
-      alert(error.message);
+      // alert(error.message);
     }
     setIsLoading(false);
   };
@@ -197,27 +195,26 @@ export const PlatformProvider = ({ children }) => {
   const addNewTask = async () => {
     try {
       if (account.accountId) {
-        const { title, description, projectType, reward } = formData;
+        const { title, description, taskType, reward } = formData;
         const feeAmount = (reward / 100) * fee;
-        const totalAmount = parseFloat(reward) + parseFloat(feeAmount);
-        const transactionHash = await window.contract.add_task(
+        const totalAmount = parseFloat(formData.reward) + parseFloat(feeAmount);
+        const transaction = await window.contract.add_task(
           {
             title,
             description,
-            projectType,
-            reward: parseNearAmount(reward.toString()),
+            task_type: taskType,
+            reward: parseNearAmount(reward.toString())
           },
-          parseNearAmount(totalAmount.toString()),
+          GAS,
+          parseNearAmount(totalAmount.toString())
         );
         setIsLoading(true);
-        console.log(`Loading - ${transactionHash.hash}`);
-        await transactionHash.wait();
-        console.log(`Success - ${transactionHash.hash}`);
+        await transaction();
         setIsLoading(false);
         window.location.replace("/");
-        notify("New task added.", transactionHash.hash);
+        notify("New task added.", transaction.hash);
       } else {
-        console.log("No ethereum object");
+        console.log("Please log in");
       }
     } catch (error) {
       console.log(error);
@@ -228,15 +225,15 @@ export const PlatformProvider = ({ children }) => {
   const applyForTask = async (id) => {
     try {
       if (account.accountId) {
-        const transactionHash = await window.contract.apply_for_task({ task_id: id });
+        const transaction = await window.contract.apply_for_task({
+          task_id: id,
+        });
         setIsLoading(true);
-        console.log(`Loading - ${transactionHash.hash}`);
-        await transactionHash.wait();
-        console.log(`Success - ${transactionHash.hash}`);
+        await transaction();
         setIsLoading(false);
         await getAllTasks();
         await getTask(id);
-        notify("Successfully applied.", transactionHash.hash);
+        notify("Successfully applied.", transaction.hash);
       } else {
         console.log("Please log in");
       }
@@ -249,15 +246,16 @@ export const PlatformProvider = ({ children }) => {
   const submitResult = async (id, result) => {
     try {
       if (account.accuntId) {
-        const transactionHash = await window.contract.submit_result({ task_id: id, result });
+        const transaction = await window.contract.submit_result({
+          task_id: id,
+          result,
+        });
         setIsLoading(true);
-        console.log(`Loading - ${transactionHash.hash}`);
-        await transactionHash.wait();
-        console.log(`Success - ${transactionHash.hash}`);
+        await transaction();
         setIsLoading(false);
         await getAllTasks();
         await getTask(id);
-        notify("Result submitted.", transactionHash.hash);
+        notify("Result submitted.", transaction.hash);
       } else {
         console.log("Plese log in");
       }
@@ -270,14 +268,14 @@ export const PlatformProvider = ({ children }) => {
   const deleteTask = async (id) => {
     try {
       if (account.accountId) {
-        const transactionHash = await window.contract.delete_task({ task_id: id });
         setIsLoading(true);
-        console.log(`Loading - ${transactionHash.hash}`);
-        await transactionHash.wait();
-        console.log(`Success - ${transactionHash.hash}`);
+        const transaction = await window.contract.delete_task({
+          task_id: id,
+        });
+        await transaction();
         setIsLoading(false);
         await getAllTasks();
-        notify("Task deleted.", transactionHash.hash);
+        notify("Task deleted.", transaction.hash);
         window.location.replace("/");
       } else {
         console.log("Please log in");
@@ -291,15 +289,16 @@ export const PlatformProvider = ({ children }) => {
   const assignTask = async (id, candidate) => {
     try {
       if (account.accountId) {
-        const transactionHash = await window.contract.assign_task({ task_id: id, candidate_account: candidate });
+        const transaction = await window.contract.assign_task({
+          task_id: id,
+          candidate_account: candidate,
+        });
         setIsLoading(true);
-        console.log(`Loading - ${transactionHash.hash}`);
-        await transactionHash.wait();
-        console.log(`Success - ${transactionHash.hash}`);
+        await transaction.wait();
         setIsLoading(false);
         await getAllTasks();
         await getTask(id);
-        notify("Task assigned.", transactionHash.hash);
+        notify("Task assigned.", transaction.hash);
       } else {
         console.log("Please log in");
       }
@@ -312,15 +311,15 @@ export const PlatformProvider = ({ children }) => {
   const unassignTask = async (id) => {
     try {
       if (account.accountId) {
-        const transactionHash = await window.contract.unassign_task({ task_id: id });
+        const transaction = await window.contract.unassign_task({
+          task_id: id,
+        });
         setIsLoading(true);
-        console.log(`Loading - ${transactionHash.hash}`);
-        await transactionHash.wait();
-        console.log(`Success - ${transactionHash.hash}`);
+        await transaction();
         setIsLoading(false);
         await getAllTasks();
         await getTask(id);
-        notify("Task unassigned.", transactionHash.hash);
+        notify("Task unassigned.", transaction.hash);
       } else {
         console.log("Please log in");
       }
@@ -333,15 +332,16 @@ export const PlatformProvider = ({ children }) => {
   const completeTask = async (id, newRating) => {
     try {
       if (account.accountId) {
-        const transactionHash = await window.contract.complete_task({ task_id: id, rating: newRating });
+        const transaction = await window.contract.complete_task({
+          task_id: id,
+          rating: newRating,
+        });
         setIsLoading(true);
-        console.log(`Loading - ${transactionHash.hash}`);
-        await transactionHash.wait();
-        console.log(`Success - ${transactionHash.hash}`);
+        await transaction();
         setIsLoading(false);
         await getAllTasks();
         await getTask(id);
-        notify("Task completed.", transactionHash.hash);
+        notify("Task completed.", transaction.hash);
       } else {
         console.log("Please log in");
       }

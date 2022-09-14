@@ -47,7 +47,7 @@ const FormField = ({ placeholder, name, type, value, handleChange }) => {
 };
 
 export default function NewTask() {
-  const account = window.walletConnection.account();
+  // const account = window.walletConnection.account();
   // const [balance, setBalance] = useState("0");
   // const [fee, setFee] = useState(0);
   // const getBalance = useCallback(async () => {

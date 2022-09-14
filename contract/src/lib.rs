@@ -143,7 +143,7 @@ impl Platform {
     );
     let task = self.tasks.get(&task_id).unwrap();
     assert!(
-      env::predecessor_account_id() == task.author,
+      env::predecessor_account_id() == task.author || Some(env::predecessor_account_id()) == task.assignee,
       "You are not permitted to perform this action"
     );
     assert!(task.assignee.is_some(), "The task not assigned yet");
