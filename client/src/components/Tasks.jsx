@@ -39,9 +39,14 @@ const Tasks = () => {
           )}
         </div>
       ) : (
-        <p className="text-white text-3xl text-center my-2">
-          Connect your account to see the latest tasks
-        </p>
+        <>
+          <p className="text-white text-3xl text-center my-2">
+            MePay is a decentralised freelance platform
+          </p>
+          <p className="text-white text-3xl text-center my-2">
+            Please connect your wallet to see the latest tasks
+          </p>
+        </>
       )}
       <div className="flex flex-wrap justify-center items-center mt-10">
         {tasks &&

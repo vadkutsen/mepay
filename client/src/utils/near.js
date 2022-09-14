@@ -18,7 +18,7 @@ export async function initializeContract() {
     nearEnv.contractName,
     {
       viewMethods: ["get_task", "get_tasks", "get_platform_fee_percentage", "get_rating"],
-      changeMethods: ["apply_for_task", "add_task", "assign_task", "unassign_task", "complete_task", "submit_Result", "delete_task"],
+      changeMethods: ["apply_for_task", "add_task", "assign_task", "unassign_task", "complete_task", "submit_result", "delete_task"],
     }
   );
 }

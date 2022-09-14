@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
-import { parseNearAmount, formatNearAmount } from "near-api-js/lib/utils/format";
+import { parseNearAmount } from "near-api-js/lib/utils/format";
 import { Web3Storage } from "web3.storage";
 import { accountBalance } from "../utils/near";
 
@@ -46,16 +46,17 @@ export const PlatformProvider = ({ children }) => {
   const [fetchedRating, setFetchedRating] = useState(0);
   const [ipfsUrl, setIpfsUrl] = useState("");
 
-  const notify = (message, hash) => toast.success(<MessageDisplay message={message} hash={hash} />, {
-    position: "top-right",
-    autoClose: 5000,
-    hideProgressBar: false,
-    closeOnClick: true,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "dark",
-  });
+  const notify = (message, hash) =>
+    toast.success(<MessageDisplay message={message} hash={hash} />, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
 
   const onUploadHandler = async (event) => {
     const client = new Web3Storage({
@@ -89,63 +90,57 @@ export const PlatformProvider = ({ children }) => {
   }, [account.accountId]);
 
   const getPlatformFee = async () => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
         setFee(await window.contract.get_platform_fee_percentage());
-      } else {
-        console.log("Please login");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      // alert(error.message);
+    } else {
+      console.log("Please login");
     }
   };
 
   const getAccountRating = async (accountToFetch) => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
         setFetchedRating(
           await window.contract.get_rating({ account_id: accountToFetch })
         );
-      } else {
-        console.log("Please login");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      // alert(error.message);
+    } else {
+      console.log("Please login");
     }
   };
 
   const getAllTasks = async () => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
         const existingTasks = await window.contract.get_tasks();
-        const structuredTasks = existingTasks
-          .map((item) => ({
-            id: item[1].id,
-            title: item[1].title,
-            description: item[1].description,
-            projectType: TaskType[item[1].task_type],
-            createdAt: new Date(
-              item[1].created_at / 1000000
-            ).toLocaleString(),
-            author: item[1].author,
-            candidates: item[1].candidates,
-            assignee: !item[1].assignee ? "Unassigned" : item[1].assignee,
-            completedAt:
-              item[1].completed_at > 0
-                ? new Date(item[1].completed_at / 1000000).toLocaleString()
-                : "Not completed yet",
-            reward: (item[1].reward / 1000000000000000000000000).toFixed(2),
-            result: item[1].result,
-          }));
+        const structuredTasks = existingTasks.map((item) => ({
+          id: item[1].id,
+          title: item[1].title,
+          description: item[1].description,
+          projectType: TaskType[item[1].task_type],
+          createdAt: new Date(item[1].created_at / 1000000).toLocaleString(),
+          author: item[1].author,
+          candidates: item[1].candidates,
+          assignee: !item[1].assignee ? "Unassigned" : item[1].assignee,
+          completedAt:
+            item[1].completed_at > 0
+              ? new Date(item[1].completed_at / 1000000).toLocaleString()
+              : "Not completed yet",
+          reward: (item[1].reward / 1000000000000000000000000).toFixed(2),
+          result: item[1].result,
+        }));
         setTasks(structuredTasks);
-      } else {
-        console.log("Please log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      // alert(error.message);
+    } else {
+      console.log("Please log in");
     }
   };
 
@@ -158,9 +153,11 @@ export const PlatformProvider = ({ children }) => {
 
   const getTask = async (id) => {
     setIsLoading(true);
-    try {
-      if (account.accountId) {
-        const fetchedTask = await window.contract.get_task({ task_id: Number(id) });
+    if (account.accountId) {
+      try {
+        const fetchedTask = await window.contract.get_task({
+          task_id: Number(id),
+        });
         const structuredTask = {
           id: fetchedTask.id,
           title: fetchedTask.title,
@@ -174,27 +171,25 @@ export const PlatformProvider = ({ children }) => {
           assignee: !fetchedTask.assignee ? "Unassigned" : fetchedTask.assignee,
           completedAt:
             fetchedTask.completed_at > 0
-              ? new Date(
-                fetchedTask.completed_at / 1000000
-              ).toLocaleString()
+              ? new Date(fetchedTask.completed_at / 1000000).toLocaleString()
               : "Not completed yet",
           reward: (fetchedTask.reward / 1000000000000000000000000).toFixed(2),
           result: fetchedTask.result,
         };
         setTask(structuredTask);
-      } else {
-        console.log("Please log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      // alert(error.message);
+    } else {
+      console.log("Please log in");
     }
     setIsLoading(false);
   };
 
   const addNewTask = async () => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
+        setIsLoading(true);
         const { title, description, taskType, reward } = formData;
         const feeAmount = (reward / 100) * fee;
         const totalAmount = parseFloat(formData.reward) + parseFloat(feeAmount);
@@ -203,151 +198,143 @@ export const PlatformProvider = ({ children }) => {
             title,
             description,
             task_type: taskType,
-            reward: parseNearAmount(reward.toString())
+            reward: parseNearAmount(reward.toString()),
           },
           GAS,
           parseNearAmount(totalAmount.toString())
         );
-        setIsLoading(true);
         await transaction();
         setIsLoading(false);
         window.location.replace("/");
         notify("New task added.", transaction.hash);
-      } else {
-        console.log("Please log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      alert("Oops! Something went wrong. See the browser console for details.");
+    } else {
+      console.log("Please log in");
     }
   };
 
   const applyForTask = async (id) => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
+        setIsLoading(true);
         const transaction = await window.contract.apply_for_task({
           task_id: id,
         });
-        setIsLoading(true);
         await transaction();
-        setIsLoading(false);
         await getAllTasks();
         await getTask(id);
+        setIsLoading(false);
         notify("Successfully applied.", transaction.hash);
-      } else {
-        console.log("Please log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      alert("Oops! Something went wrong. See the browser console for details.");
+    } else {
+      console.log("Please log in");
     }
   };
 
   const submitResult = async (id, result) => {
-    try {
-      if (account.accuntId) {
+    if (account.accountId) {
+      try {
+        setIsLoading(true);
         const transaction = await window.contract.submit_result({
           task_id: id,
           result,
         });
-        setIsLoading(true);
         await transaction();
-        setIsLoading(false);
         await getAllTasks();
         await getTask(id);
+        setIsLoading(false);
         notify("Result submitted.", transaction.hash);
-      } else {
-        console.log("Plese log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      alert("Oops! Something went wrong. See the browser console for details.");
+    } else {
+      console.log("Plese log in");
     }
   };
 
   const deleteTask = async (id) => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
         setIsLoading(true);
         const transaction = await window.contract.delete_task({
           task_id: id,
         });
         await transaction();
-        setIsLoading(false);
         await getAllTasks();
+        setIsLoading(false);
         notify("Task deleted.", transaction.hash);
         window.location.replace("/");
-      } else {
-        console.log("Please log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      alert("Oops! Something went wrong. See the browser console for details.");
+    } else {
+      console.log("Please log in");
     }
   };
 
   const assignTask = async (id, candidate) => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
+        setIsLoading(true);
         const transaction = await window.contract.assign_task({
           task_id: id,
           candidate_account: candidate,
         });
-        setIsLoading(true);
-        await transaction.wait();
-        setIsLoading(false);
+        await transaction();
         await getAllTasks();
         await getTask(id);
+        setIsLoading(false);
         notify("Task assigned.", transaction.hash);
-      } else {
-        console.log("Please log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      alert("Oops! Something went wrong. See the browser console for details.");
+    } else {
+      console.log("Please log in");
     }
   };
 
   const unassignTask = async (id) => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
+        setIsLoading(true);
         const transaction = await window.contract.unassign_task({
           task_id: id,
         });
-        setIsLoading(true);
         await transaction();
-        setIsLoading(false);
         await getAllTasks();
         await getTask(id);
+        setIsLoading(false);
         notify("Task unassigned.", transaction.hash);
-      } else {
-        console.log("Please log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      alert("Oops! Something went wrong. See the browser console for details.");
+    } else {
+      console.log("Please log in");
     }
   };
 
   const completeTask = async (id, newRating) => {
-    try {
-      if (account.accountId) {
+    if (account.accountId) {
+      try {
+        setIsLoading(true);
         const transaction = await window.contract.complete_task({
           task_id: id,
           rating: newRating,
         });
-        setIsLoading(true);
         await transaction();
-        setIsLoading(false);
         await getAllTasks();
         await getTask(id);
+        setIsLoading(false);
         notify("Task completed.", transaction.hash);
-      } else {
-        console.log("Please log in");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-      alert("Oops! Something went wrong. See the browser console for details.");
+    } else {
+      console.log("Please log in");
     }
   };
 
