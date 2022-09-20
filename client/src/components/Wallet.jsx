@@ -13,7 +13,7 @@ const Wallet = ({ address, amount, symbol, destroy }) => {
       <Menu as="div" className="relative inline-block text-left">
         <div>
           <Menu.Button
-            className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100"
+            className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-transparent px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-900/75"
           >
             {amount ? (
               <>
@@ -38,7 +38,7 @@ const Wallet = ({ address, amount, symbol, destroy }) => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-transparent shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="py-1">
               <Menu.Item>
                 {({ active }) => (
@@ -47,8 +47,8 @@ const Wallet = ({ address, amount, symbol, destroy }) => {
                     target="_blank"
                     rel="noreferrer"
                     className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                      "block px-4 py-2 text-sm"
+                      active ? "bg-purple-900/75 text-white" : "bg-transparent text-white",
+                      "block px-4 py-2 text-sm text-center"
                     )}
                   >
                     {address}
@@ -62,12 +62,13 @@ const Wallet = ({ address, amount, symbol, destroy }) => {
                 onClick={() => {
                   destroy();
                 }}
+                className="w-full"
               >
                 {({ active }) => (
                   <a
                     href="#"
                     className={classNames(
-                      active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                      active ? "bg-purple-900/75 text-white" : "bg-transparent text-white",
                       "block px-4 py-2 text-sm"
                     )}
                   >
