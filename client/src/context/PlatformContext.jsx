@@ -203,7 +203,9 @@ export const PlatformProvider = ({ children }) => {
           GAS,
           parseNearAmount(totalAmount.toString())
         );
-        await transaction();
+        console.log(`Loading - ${transaction.hash}`);
+        await transaction.wait();
+        console.log(`Success - ${transaction.hash}`);
         setIsLoading(false);
         window.location.replace("/");
         notify("New task added.", transaction.hash);
