@@ -47,31 +47,6 @@ const FormField = ({ placeholder, name, type, value, handleChange }) => {
 };
 
 export default function NewTask() {
-  // const account = window.walletConnection.account();
-  // const [balance, setBalance] = useState("0");
-  // const [fee, setFee] = useState(0);
-  // const getBalance = useCallback(async () => {
-  //   if (account.accountId) {
-  //     setBalance(await accountBalance());
-  //   }
-  // }, [account.accountId]);
-
-  // const getFee = async () => {
-  //   if (account.accountId) {
-  //     const fetchedFee = await getPlatformFeePercentage();
-  //     setFee(fetchedFee);
-  //     console.log("fee", fee);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   getBalance();
-  // }, [getBalance]);
-
-  // useEffect(() => {
-  //   getFee();
-  // });
-
   const { handleChange, formData, isLoading, fee, balance, addNewTask } =
     useContext(PlatformContext);
   const handleSubmit = (e) => {
