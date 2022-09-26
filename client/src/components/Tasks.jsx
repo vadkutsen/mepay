@@ -48,7 +48,7 @@ const Tasks = () => {
           </p>
         </>
       )}
-      <div className="flex flex-wrap justify-center items-center mt-10">
+      <div className="list-none justify-center items-center mt-10">
         {tasks &&
           [...tasks]
             .reverse()

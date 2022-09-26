@@ -46,17 +46,16 @@ export const PlatformProvider = ({ children }) => {
   const [fetchedRating, setFetchedRating] = useState(0);
   const [ipfsUrl, setIpfsUrl] = useState("");
 
-  const notify = (message, hash) =>
-    toast.success(<MessageDisplay message={message} hash={hash} />, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
+  const notify = (message, hash) => toast.success(<MessageDisplay message={message} hash={hash} />, {
+    position: "top-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "dark",
+  });
 
   const onUploadHandler = async (event) => {
     const client = new Web3Storage({
